@@ -1,0 +1,357 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Visit Card — Portfolio, Certificates, About, Contacts</title>
+    <meta name="description" content="Personal visit card: portfolio, certificates, about me and contacts." />
+    <style>
+        :root{
+            --bg:#0f1724; --card:#0b1220; --muted:#9aa4b2; --accent:#3b82f6;
+            --glass: rgba(255,255,255,0.04);
+            --radius:12px;
+            color-scheme: dark;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0; background:
+            radial-gradient(circle at 10% 10%, rgba(59,130,246,0.08), transparent 8%),
+            radial-gradient(circle at 90% 90%, rgba(16,185,129,0.03), transparent 10%),
+            var(--bg);
+            color:#e6eef8; -webkit-font-smoothing:antialiased;
+            padding:32px; display:flex; align-items:center; justify-content:center;
+            gap:24px;
+        }
+
+        .card{
+            width:100%; max-width:980px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border-radius:var(--radius); padding:20px; backdrop-filter: blur(6px);
+            box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+            display:grid; grid-template-columns: 300px 1fr; gap:20px;
+            align-items:start;
+        }
+
+        /* Left column - compact visit card */
+        .profile{
+            background:var(--card); border-radius:12px; padding:18px; display:flex; flex-direction:column; gap:12px;
+        }
+        .avatar{
+            width:96px; height:96px; border-radius:16px; overflow:hidden; flex-shrink:0;
+            display:grid; place-items:center; background:linear-gradient(135deg,#111827,#0f1724);
+            border:1px solid rgba(255,255,255,0.03);
+        }
+        .avatar svg{width:84px;height:84px;opacity:0.95}
+        .name{font-size:20px;font-weight:600;margin-top:6px}
+        .title{color:var(--muted); font-size:13px}
+        .metrics{display:flex; gap:8px; margin-top:8px}
+        .metric{flex:1; background:var(--glass); padding:8px;border-radius:8px; font-size:13px; text-align:center}
+        .contacts{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+        .btn{display:inline-flex; gap:8px; align-items:center; padding:10px 12px; border-radius:10px; text-decoration:none; color:inherit; font-size:14px}
+        .btn.primary{background:linear-gradient(90deg,var(--accent),#06b6d4); color:#021022; font-weight:600}
+        .btn.ghost{background:transparent; border:1px solid rgba(255,255,255,0.04)}
+        .socials{display:flex; gap:8px; margin-top:6px}
+        .socials a{display:inline-flex; width:38px;height:38px; align-items:center; justify-content:center; border-radius:8px; background:rgba(255,255,255,0.02); text-decoration:none; color:var(--muted)}
+
+        /* Right column - details */
+        .content{display:flex; flex-direction:column; gap:16px}
+        section{background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent); padding:14px; border-radius:10px}
+        h2{margin:0 0 8px 0; font-size:16px}
+        p.lead{margin:0;color:var(--muted); font-size:14px}
+        .skills{display:flex; gap:8px; flex-wrap:wrap}
+        .skill{background:rgba(255,255,255,0.03); padding:6px 8px; border-radius:999px; font-size:13px; color:var(--muted)}
+
+        /* Portfolio grid */
+        .grid{display:grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); gap:10px}
+        .proj{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:10px; border-radius:8px; cursor:pointer; transition:transform .16s; display:flex; flex-direction:column; gap:8px}
+        .proj:hover{transform:translateY(-6px)}
+        .proj .thumb{height:90px; border-radius:6px; background:linear-gradient(135deg,#0f1724,#071123); display:grid;place-items:center;color:var(--muted); font-size:12px}
+        .proj .meta{display:flex; justify-content:space-between; align-items:center; font-size:13px}
+
+        /* Certificates */
+        .cert-list{display:flex; gap:8px; overflow:auto; padding-bottom:4px}
+        .cert{min-width:200px; background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; display:flex; gap:8px; align-items:center}
+        .cert img{width:56px;height:40px;object-fit:cover;border-radius:6px}
+
+        /* contacts & form */
+        .contact-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+        input,textarea{width:100%;padding:10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04); color:inherit; resize:vertical}
+        label{font-size:13px;color:var(--muted); margin-bottom:6px; display:block}
+
+        footer{display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:13px; margin-top:8px}
+
+        /* Modal */
+        .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:60}
+        .modal.open{display:flex}
+        .overlay{position:absolute; inset:0; background:linear-gradient(180deg, rgba(2,6,23,0.7), rgba(2,6,23,0.85)); backdrop-filter: blur(6px)}
+        .dialog{position:relative; z-index:61; width:calc(100% - 48px); max-width:880px; background:var(--card); border-radius:12px; padding:18px}
+        .dialog header{display:flex; justify-content:space-between; align-items:center}
+        .close{background:transparent;border:0;color:var(--muted);font-size:16px;cursor:pointer;padding:6px 8px;border-radius:8px}
+        @media (max-width:880px){
+            .card{grid-template-columns:1fr}
+            .profile{order:2}
+        }
+    </style>
+</head>
+<body>
+    <main class="card" role="main">
+        <aside class="profile" aria-label="Visit card">
+            <div style="display:flex;gap:12px;align-items:center">
+                <div class="avatar" aria-hidden="true">
+                    <!-- simple SVG avatar placeholder -->
+                    <img src="../avatar/avatar.png" alt="avatar", style=" width:84px;height:84px;border-radius:16px"/>
+                        <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+                        <rect width="120" height="120" rx="18" fill="url(#g)"/>
+                        <g transform="translate(16,18)" fill="#0b1220">
+                            <circle cx="44" cy="30" r="20"/>
+                            <rect x="6" y="64" width="76" height="26" rx="8"/>
+                        </g>
+                    </svg>
+                </div>
+                <div>
+                    <div class="name">Urazbaev Ali</div>
+                    <div class="title">FullStack Developer • CyberSecurity</div>
+                    <div style="display:flex;gap:8px;margin-top:6px">
+                        <a href="#" class="btn ghost" title="Download vCard" aria-label="Download vCard">vCard</a>
+                        <a href="#" class="btn primary" title="Hire me" aria-label="Hire me">Hire me</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metrics" aria-hidden="true">
+                <div class="metric"><strong>0</strong><div style="font-size:12px;color:var(--muted)">Years</div></div>
+                <div class="metric"><strong>2</strong><div style="font-size:12px;color:var(--muted)">Projects</div></div>
+                <div class="metric"><strong>5</strong><div style="font-size:12px;color:var(--muted)">Certificates</div></div>
+            </div>
+
+            <div class="contacts" aria-label="Contacts">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                    <div>
+                        <div style="font-size:13px;color:var(--muted)">Kaskelen</div>
+                        <div style="font-weight:600">Almaty, Kazakhstan</div>
+                    </div>
+                    <div>
+                        <div style="font-size:13px;color:var(--muted)">Email</div>
+                        <a href="mailto:you@example.com" style="color:var(--accent);font-weight:600;text-decoration:none">aliurazbayev09@gmail.com</a>
+                    </div>
+                </div>
+
+                <nav class="socials" aria-label="Social links">
+                    <a href="https://github.com/AlishkaI" title="GitHub" aria-label="GitHub">
+                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--muted)">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 2a10 10 0 00-3.16 19.5c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.2-3.37-1.2-.45-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.52 1.03 1.52 1.03.89 1.53 2.34 1.09 2.9.83.09-.65.35-1.09.64-1.34-2.22-.25-4.56-1.11-4.56-4.95 0-1.09.39-1.98 1.03-2.68-.1-.26-.45-1.29.1-2.68 0 0 .84-.27 2.75 1.03A9.5 9.5 0 0112 6.8c.85.004 1.71.115 2.51.337 1.9-1.3 2.74-1.03 2.74-1.03.55 1.39.2 2.42.1 2.68.64.7 1.03 1.59 1.03 2.68 0 3.85-2.34 4.7-4.57 4.95.36.31.68.92.68 1.86v2.76c0 .26.18.58.69.48A10 10 0 0012 2z"/>
+                        </svg>
+                    </a>
+                    <a href="https://www.linkedin.com/in/urazbaev-ali-1b7596292?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" title="LinkedIn" aria-label="LinkedIn">
+                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--muted)">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M16 8a6 6 0 016 6v6h-4v-6a2 2 0 00-4 0v6h-4v-12h4v2a2 2 0 012-2zM2 9h4v12H2zM4 3a2 2 0 110 4 2 2 0 010-4z"/>
+                        </svg>
+                    </a>
+                    <a href="#" title="Website" aria-label="Website">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--muted)">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h4m12 0h4M12 2v4m0 12v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M16.3 7.7l2.8-2.8M4.9 19.1l2.8-2.8"/>
+                        </svg>
+                    </a>
+                </nav>
+            </div>
+
+            <footer>
+                <div style="font-size:13px;color:var(--muted)">Available for freelance</div>
+                <div style="font-size:12px;color:var(--muted)">Updated: 2025</div>
+            </footer>
+        </aside>
+
+        <div class="content">
+            <section aria-labelledby="about-heading">
+                <h2 id="about-heading">About me</h2>
+                <p class="lead">Hey yo dawg! i`m are FullStack dev and CyberSecurity major, this site was created by me, for demonstrations my skills and portfolio-certificates, if you want hire me, contacts under</p>
+                <div style="margin-top:10px">
+                    <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Skills</div>
+                    <div class="skills" aria-hidden="true">
+                        <span class="skill">HTML</span>
+                        <span class="skill">CSS</span>
+                        <span class="skill">JavaScript</span>
+                        <span class="skill">React</span>
+                        <span class="skill">TypeScript</span>
+                        <span class="skill">Accessibility</span>
+                        <span class="skill">Design Systems</span>
+                    </div>
+                </div>
+            </section>
+
+            <section aria-labelledby="portfolio-heading">
+                <h2 id="portfolio-heading">Portfolio</h2>
+                <div class="grid" id="projects">
+                    <!-- project items filled by JS or copy/paste below -->
+                    <article class="proj" data-title="Project Alpha" data-desc="A marketing site with animations and CMS integration." data-link="#" tabindex="0">
+                        <div class="thumb">Project Alpha</div>
+                        <div class="meta"><div>vCard site</div><div style="color:var(--muted);font-size:12px">2025</div></div>
+                    </article>
+                    <article class="proj" data-title="Dashboard App" data-desc="Interactive analytics dashboard built with React and D3." data-link="#" tabindex="0">
+                        <div class="thumb">Soon...</div>
+                        <div class="meta"><div>React project</div><div style="color:var(--muted);font-size:12px">2025-????</div></div>
+                    </article>
+                    <article class="proj" data-title="Mobile UI Kit" data-desc="Reusable components and Figma library for mobile products." data-link="#" tabindex="0">
+                        <div class="thumb">Soon...</div>
+                        <div class="meta"><div>Design</div><div style="color:var(--muted);font-size:12px">2025</div></div>
+                    </article>
+
+                    <article class="proj" data-title="E-commerce" data-desc="Performance-optimized storefront with headless backend." data-link="https://hyperpc.kz/?srsltid=AfmBOorFvlA2Oa_NfRgl9GhwjH_VV_oTqZoWNuLbF5mBZOWYL-zW5LcN" tabindex="0">
+                        <div class="thumb">Kaspi Store Site</div>
+                        <div class="meta"><div>E‑commerce</div><div style="color:var(--muted);font-size:12px">2025</div></div>
+                    </article>
+                </div>
+            </section>
+
+            <section aria-labelledby="certs-heading">
+                <h2 id="certs-heading">Certificates</h2>
+                <div class="cert-list" aria-live="polite">
+                    <div class="cert">
+                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='200'><rect width='100%' height='100%' fill='%230b1220'/><text x='16' y='32' fill='%23e6eef8' font-size='14'>Frontend Advanced</text></svg>" alt="" />
+                        <div>
+                            <div style="font-weight:600">FullStack Dev</div>
+                            <div style="font-size:13px;color:var(--muted)">Course by Lystra 2025-2026</div>
+                            <div style="margin-top:6px"><a href="https://lystra.kz/" class="btn ghost" style="font-size:13px">View</a></div>
+                        </div>
+                    </div>
+
+                    <div class="cert">
+                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='200'><rect width='100%' height='100%' fill='%230b1220'/><text x='16' y='32' fill='%23e6eef8' font-size='14'>Accessibility</text></svg>" alt="" />
+                        <div>
+                            <div style="font-weight:600">Cybersecurity Expert</div>
+                            <div style="font-size:13px;color:var(--muted)">Roadmap — 2025</div>
+                            <div style="margin-top:6px"><a href="https://roadmap.sh/cyber-security" class="btn ghost" style="font-size:13px">View</a></div>
+                        </div>
+                    </div>
+
+                    <div class="cert">
+                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='200'><rect width='100%' height='100%' fill='%230b1220'/><text x='16' y='32' fill='%23e6eef8' font-size='14'>Performance</text></svg>" alt="" />
+                        <div>
+                            <div style="font-weight:600">Web Performance</div>
+                            <div style="font-size:13px;color:var(--muted)">FastWeb Cert — 2025</div>
+                            <div style="margin-top:6px"><a href="#" class="btn ghost" style="font-size:13px">View</a></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section aria-labelledby="contact-heading">
+                <h2 id="contact-heading">Contact</h2>
+                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+                    <div style="flex:1;min-width:220px">
+                        <div style="font-size:13px;color:var(--muted)">Phone</div>
+                        <div style="font-weight:600;margin-bottom:8px">87083593891</div>
+
+                        <div style="font-size:13px;color:var(--muted)">Email</div>
+                        <div style="font-weight:600"><a href="mailto:you@example.com" style="color:var(--accent);text-decoration:none">aliurazbayev09@gmail.com</a></div>
+                    </div>
+
+                    <form id="contactForm" style="flex:1;min-width:260px" onsubmit="return false;" aria-label="Contact form">
+                        <label for="name">Name</label>
+                        <input id="name" name="name" placeholder="Your name" required />
+
+                        <label for="message" style="margin-top:8px">Message</label>
+                        <textarea id="message" name="message" rows="4" placeholder="Hi, I'd like to work with you..." required></textarea>
+
+                        <div style="margin-top:8px;display:flex;gap:8px">
+                            <button type="submit" class="btn primary" id="sendBtn">Send</button>
+                            <a href="mailto:you@example.com" class="btn ghost">Email directly</a>
+                        </div>
+                        <div id="formMsg" style="margin-top:8px;color:var(--muted);font-size:13px"></div>
+                    </form>
+                </div>
+            </section>
+        </div>
+
+        <!-- Modal -->
+        <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+            <div class="overlay" onclick="closeModal()"></div>
+            <div class="dialog" role="document">
+                <header>
+                    <div>
+                        <strong id="mTitle">Project</strong>
+                        <div id="mType" style="font-size:13px;color:var(--muted)">Type • Year</div>
+                    </div>
+                    <button class="close" aria-label="Close" onclick="closeModal()">✕</button>
+                </header>
+                <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
+                    <div style="flex:1;min-width:200px">
+                        <div style="height:180px;border-radius:8px;background:linear-gradient(135deg,#071123,#0b1220);display:grid;place-items:center;color:var(--muted)">Project preview</div>
+                    </div>
+                    <div style="flex:1;min-width:220px">
+                        <p id="mDesc" style="margin:0 0 8px 0;color:var(--muted)"></p>
+                        <div style="display:flex;gap:8px">
+                            <a id="mLink" href="#" class="btn primary">Open project</a>
+                            <a href="#" class="btn ghost" onclick="return false;">Live demo</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Interaction: open modal for project items
+        const projects = document.querySelectorAll('.proj');
+        const modal = document.getElementById('modal');
+        const mTitle = document.getElementById('mTitle');
+        const mType = document.getElementById('mType');
+        const mDesc = document.getElementById('mDesc');
+        const mLink = document.getElementById('mLink');
+
+        function openModal(data){
+            mTitle.textContent = data.title;
+            mType.textContent = data.type || 'Project • 2024';
+            mDesc.textContent = data.desc || '';
+            mLink.href = data.link || '#';
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden','false');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal(){
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden','true');
+            document.body.style.overflow = '';
+        }
+
+        projects.forEach(p=>{
+            p.addEventListener('click', ()=> {
+                openModal({
+                    title: p.dataset.title,
+                    desc: p.dataset.desc,
+                    link: p.dataset.link,
+                    type: p.querySelector('.meta > div').textContent + ' • ' + p.querySelector('.meta > div + div').textContent
+                });
+            });
+            p.addEventListener('keydown', (e)=>{
+                if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); p.click(); }
+            });
+        });
+
+        // simple contact form feedback (no server)
+        const form = document.getElementById('contactForm');
+        const sendBtn = document.getElementById('sendBtn');
+        const formMsg = document.getElementById('formMsg');
+
+        form.addEventListener('submit', (e)=>{
+            e.preventDefault();
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Sending...';
+            setTimeout(()=>{
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Send';
+                form.reset();
+                formMsg.textContent = 'Thanks — message simulated (no server). You can also email directly.';
+            }, 900);
+        });
+
+        // close modal on Escape
+        window.addEventListener('keydown', (e)=>{
+            if(e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+        });
+    </script>
+</body>
+</html></svg></a></svg></a></div>
